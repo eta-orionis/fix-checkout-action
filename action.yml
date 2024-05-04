@@ -1,0 +1,28 @@
+name: "Add ssh alias for host:port to circumvent actions/checkout bug"
+description: "See https://github.com/actions/checkout/issues/1315#issuecomment-1904570594"
+inputs:
+  ssh-host: # id of input
+    description: "Host name"
+    required: true
+  ssh-server:
+    description: "Server for that host"
+    required: true
+  ssh-port:
+    description: "Port where server listens"
+    required: false
+    default: 22
+runs:
+  using: "composite"
+  steps:
+    - name: Add Host to .ssh/config
+      env:
+        INPUT_SSH_HOST: ${{ inputs.ssh-host }}
+        INPUT_SSH_SERVER: ${{ inputs.ssh-server }}
+        INPUT_SSH_PORT: ${{ inputs.ssh-port }}
+      shell: bash
+      run: |
+        install -d ~/.ssh -m 0600
+        echo "Host $INPUT_SSH_HOST" >> ~/.ssh/config
+        echo "    HostName $INPUT_SSH_SERVER " >> ~/.ssh/config
+        echo "    Port $INPUT_SSH_PORT" >> ~/.ssh/config
+        cat  ~/.ssh/config
